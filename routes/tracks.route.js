@@ -1,11 +1,11 @@
 const tracks_service = require('../services/tracks.service')
 const express = require('express');
-// let extend = require('lodash/extend');
+const range = require('lodash/range');
 
 const router = express.Router();
 const asyncHandler = require('express-async-handler')
 
-const Track = require('../models/Track.model');
+// const Track = require('../models/Track.model');
 
 // router.post('/books', (req, res) => {
 //   const {title, summary, isbn, authors} = req.body;
@@ -29,59 +29,46 @@ const Track = require('../models/Track.model');
 //   });
 // });
 
+const getRange = (start, end, step) => range(start, end, step).slice(1).map((value) => value.toFixed(2))
+
 router.get('/tracks/stats', asyncHandler(async (req, res, next) => {
   const [
     acousticnessDistByYear,
-    acousticnessStatsByYear,
     danceabilityByYear,
-    danceabilityStatsByYear,
     energyDistByYear,
-    energyStatsByYear,
     instrumentalnessDistByYear,
-    instrumentalnessStatsByYear,
     livenessDistByYear,
-    livenessStatsByYear,
     loudnessDistByYear,
-    loudnessStatsByYear,
     speechinessDistByYear,
-    speechinessStatsByYear,
+    popularityDistByYear,
+    tempoDistByYear,
     valenceDistByYear,
-    valenceStatsByYear
+    tracksStatsByYear,
   ] = await Promise.all([
-    tracks_service.tracksAcousticnessDistByYear(),
-    tracks_service.tracksAcousticnessStatsByYear(),
-    tracks_service.tracksDanceabilityDistByYear(),
-    tracks_service.tracksDanceabilityStatsByYear(),
-    tracks_service.tracksEnergyDistByYear(),
-    tracks_service.tracksEnergyStatsByYear(),
-    tracks_service.tracksInstrumentalnessDistByYear(),
-    tracks_service.tracksInstrumentalnessStatsByYear(),
-    tracks_service.tracksLivenessDistByYear(),
-    tracks_service.tracksLivenessStatsByYear(),
-    tracks_service.tracksLoudnessDistByYear(),
-    tracks_service.tracksLoudnessStatsByYear(),
-    tracks_service.tracksSpeechinessDistByYear(),
-    tracks_service.tracksSpeechinessStatsByYear(),
-    tracks_service.tracksValenceDistByYear(),
-    tracks_service.tracksValenceStatsByYear(),
+    tracks_service.tracksDistByYear('acousticness', getRange(0, 1.01, 0.05), 0.05),
+    tracks_service.tracksDistByYear('danceability', getRange(0, 1.01, 0.05), 0.05),
+    tracks_service.tracksDistByYear('energy', getRange(0, 1.01, 0.05), 0.05),
+    tracks_service.tracksDistByYear('instrumentalness', getRange(0, 1.01, 0.05), 0.05),
+    tracks_service.tracksDistByYear('liveness', getRange(0, 1.01, 0.05), 0.05),
+    tracks_service.tracksDistByYear('loudness', getRange(-30, 4.01, 2), -2),
+    tracks_service.tracksDistByYear('speechiness', getRange(0, 1.01, 0.05), 0.05),
+    tracks_service.tracksDistByYear('popularity', getRange(0, 100.01, 5), 5),
+    tracks_service.tracksDistByYear('tempo', getRange(50, 250.01, 10), 10),
+    tracks_service.tracksDistByYear('valence', getRange(0, 1.01, 0.05), 0.05),
+    tracks_service.tracksStatsByYear(['acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'loudness', 'speechiness', 'popularity', 'tempo', 'valence']),
   ]);
   res.send({
     acousticnessDistByYear,
-    acousticnessStatsByYear,
     danceabilityByYear,
-    danceabilityStatsByYear,
     energyDistByYear,
-    energyStatsByYear,
     instrumentalnessDistByYear,
-    instrumentalnessStatsByYear,
     livenessDistByYear,
-    livenessStatsByYear,
     loudnessDistByYear,
-    loudnessStatsByYear,
     speechinessDistByYear,
-    speechinessStatsByYear,
+    popularityDistByYear,
+    tempoDistByYear,
     valenceDistByYear,
-    valenceStatsByYear
+    tracksStatsByYear
   });
 
   // TODO Artists
