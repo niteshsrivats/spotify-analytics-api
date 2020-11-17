@@ -94,8 +94,8 @@ const TrackSchema = new Schema({
       validator: (v) => Number(v) <= new Date().getFullYear(),
       message: props => `${props.value} is not a valid year`
     },
-    index: true
+    index: true,
   },
-});
+}, {versionKey: false});
 
 module.exports = mongoose.model('Track', TrackSchema);

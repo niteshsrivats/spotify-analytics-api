@@ -36,12 +36,12 @@ module.exports = {
     ])
   },
 
-  tracksStatsByYear: (values) => {
+  tracksStatsByYear: (fields) => {
     const group = {_id: {year: "$year"}};
     const project = {_id: 0, year: '$_id.year'};
-    values.forEach((value) => {
-      group[value + 'Avg'] = {$avg: '$' + value};
-      project[value + 'Avg'] = 1;
+    fields.forEach((field) => {
+      group[field + 'Avg'] = {$avg: '$' + field};
+      project[field + 'Avg'] = 1;
     });
 
     return Track.aggregate([
@@ -49,5 +49,7 @@ module.exports = {
       {$project: project},
       {$sort: {year: 1}},
     ]);
-  }
+  },
+
+  getChartTracks: () => Track.find({}).sort({popularity: -1, year: -1}).limit(100)
 }

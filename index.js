@@ -8,6 +8,7 @@ const app = express();
 
 // routes
 let tracksRoute = require('./routes/tracks.route');
+let artistsRoute = require('./routes/artists.route');
 
 // middleware
 app.use(cors());
@@ -19,6 +20,7 @@ app.use((req, res, next) => {
 });
 
 router.use(tracksRoute);
+router.use(artistsRoute);
 
 mongoose.connect('mongodb://localhost:27017/spotify', {
   useCreateIndex: true,
