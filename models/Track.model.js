@@ -92,8 +92,9 @@ const TrackSchema = new Schema({
     required: true,
     validate: {
       validator: (v) => Number(v) <= new Date().getFullYear(),
-      message: props => `${props.value} is not a valid ISBN`
+      message: props => `${props.value} is not a valid year`
     },
+    index: true
   },
 });
 

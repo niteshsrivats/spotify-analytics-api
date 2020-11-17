@@ -21,6 +21,7 @@ app.use((req, res, next) => {
 router.use(tracksRoute);
 
 mongoose.connect('mongodb://localhost:27017/spotify', {
+  useCreateIndex: true,
   useNewUrlParser: true,
   useFindAndModify: false,
   useUnifiedTopology: true

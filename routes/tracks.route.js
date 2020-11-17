@@ -1,6 +1,7 @@
 const tracks_service = require('../services/tracks.service')
 const express = require('express');
 const range = require('lodash/range');
+// const {v4: uuidv4} = require('uuid');
 
 const router = express.Router();
 const asyncHandler = require('express-async-handler')
@@ -29,62 +30,69 @@ const asyncHandler = require('express-async-handler')
 //   });
 // });
 
-const getRange = (start, end, step) => range(start, end, step).slice(1).map((value) => value.toFixed(2))
+const getRange = (start, end, step) => range(start, end, step).map((value) => parseFloat(value.toFixed(1)))
 
-router.get('/tracks/stats', asyncHandler(async (req, res, next) => {
-  const [
-    acousticnessDistByYear,
-    danceabilityByYear,
-    energyDistByYear,
-    instrumentalnessDistByYear,
-    livenessDistByYear,
-    loudnessDistByYear,
-    speechinessDistByYear,
-    popularityDistByYear,
-    tempoDistByYear,
-    valenceDistByYear,
+router.get('/tracks/:year/distribution', asyncHandler(async (req, res, next) => {
+  const {year} = req.params;
+
+  const fields = [
+    {name: 'acousticness', range: getRange(0, 1, 0.1), step: 0.1},
+    {name: 'danceability', range: getRange(0, 1, 0.1), step: 0.1},
+    {name: 'energy', range: getRange(0, 1, 0.1), step: 0.1},
+    {name: 'instrumentalness', range: getRange(0, 1, 0.1), step: 0.1},
+    {name: 'liveness', range: getRange(0, 1, 0.1), step: 0.1},
+    // {name: 'loudness', range: getRange(-28, 2, 4), step: 2},Tra
+    // {name: 'popularity', range: getRange(0, 100, 10), step: 10},
+    // {name: 'tempo', range: getRange(60, 250, 10), step: 10},
+    {name: 'speechiness', range: getRange(0, 1, 0.1), step: 0.1},
+    {name: 'valence', range: getRange(0, 1, 0.1), step: 0.1},
+  ];
+
+  let [
+    tracksDistForYear,
     tracksStatsByYear,
   ] = await Promise.all([
-    tracks_service.tracksDistByYear('acousticness', getRange(0, 1.01, 0.05), 0.05),
-    tracks_service.tracksDistByYear('danceability', getRange(0, 1.01, 0.05), 0.05),
-    tracks_service.tracksDistByYear('energy', getRange(0, 1.01, 0.05), 0.05),
-    tracks_service.tracksDistByYear('instrumentalness', getRange(0, 1.01, 0.05), 0.05),
-    tracks_service.tracksDistByYear('liveness', getRange(0, 1.01, 0.05), 0.05),
-    tracks_service.tracksDistByYear('loudness', getRange(-30, 4.01, 2), -2),
-    tracks_service.tracksDistByYear('speechiness', getRange(0, 1.01, 0.05), 0.05),
-    tracks_service.tracksDistByYear('popularity', getRange(0, 100.01, 5), 5),
-    tracks_service.tracksDistByYear('tempo', getRange(50, 250.01, 10), 10),
-    tracks_service.tracksDistByYear('valence', getRange(0, 1.01, 0.05), 0.05),
-    tracks_service.tracksStatsByYear(['acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'loudness', 'speechiness', 'popularity', 'tempo', 'valence']),
+    tracks_service.tracksDistForYear(year, fields),
+    tracks_service.tracksStatsByYear(['acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'speechiness', 'valence']),
   ]);
+
+  tracksDistForYear = tracksDistForYear[0];
+  for (let i = 0; i < fields.length; i++) {
+    const distribution = {labels: [], values: []};
+    const {name, range, step} = fields[i];
+
+    for (let j = 0; j < range.length; j++) {
+      const labelFromRange = range[j].toFixed(1) + ' - ' + (range[j] + step).toFixed(1);
+
+      distribution.labels.push(labelFromRange);
+
+      if (tracksDistForYear[name][j]) {
+        const {count, [name]: label} = tracksDistForYear[name][j];
+        labelFromRange !== label ? distribution.values.push(0) : distribution.values.push(count);
+      } else {
+        distribution.values.push(0);
+      }
+    }
+
+    tracksDistForYear[name] = distribution;
+  }
+
   res.send({
-    acousticnessDistByYear,
-    danceabilityByYear,
-    energyDistByYear,
-    instrumentalnessDistByYear,
-    livenessDistByYear,
-    loudnessDistByYear,
-    speechinessDistByYear,
-    popularityDistByYear,
-    tempoDistByYear,
-    valenceDistByYear,
+    tracksDistForYear,
     tracksStatsByYear
   });
-
-  // TODO Artists
-
-
-  // Track.find({}).exec((err, tracks) => {
-  //   tracks.forEach(async (track) => {
-  //     track.artists = JSON.stringify(track.artists).replace(/["\[\]' ]/g, '').split(',');
-  //     console.log(track.id, track.artists)
-  //     await track.save();
-  //   })
-  //   if (err) res.send(err);
-  //   res.send(tracks.slice(0, 10));
-  // });
-
 }));
+
+// Track.find({}).exec((err, tracks) => {
+//   tracks.forEach(async (track) => {
+//     track.artists = JSON.stringify(track.artists).replace(/["\[\]' ]/g, '').split(',');
+//     console.log(track.id, track.artists)
+//     await track.save();
+//   })
+//   if (err) res.send(err);
+//   res.send(tracks.slice(0, 10));
+// });
+
 
 // router.get('/books/:book_id', (req, res) => {
 //   const {book_id} = req.params;
