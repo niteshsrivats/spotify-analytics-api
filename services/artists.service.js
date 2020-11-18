@@ -32,5 +32,26 @@ module.exports = {
       {$group: stdGroup},
       {$group: avgGroup}
     ]);
+  },
+
+  addNewArtists: async (artists) => {
+    const names = await Artist.find({name: {$in: [artists]}})
+    for (let i = 0; i < artists.length; i++) {
+      const name = artists[i].name;
+      if (!names.includes(name)) {
+        const artist = new Artist({name});
+        await artist.save();
+      }
+    }
+  },
+
+  deleteEmptyArtists: async (artists) => {
+    for (let i = 0; i < artists.length; i++) {
+      const artist = artists[i];
+      const result = await Track.find({artists: {$in: [artist]}}).limit(1);
+      if (result.length === 0) {
+        Artist.remove({name: artist});
+      }
+    }
   }
 }
