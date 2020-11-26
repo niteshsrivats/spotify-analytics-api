@@ -16,5 +16,13 @@
     "lodash": "^4.17.20",
     "mongoose": "^5.10.14",
     "nodemon": "^2.0.6"
+  },
+  "devDependencies": {
+    "prettier": "^2.1.2"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "printWidth": 120
   }
 }

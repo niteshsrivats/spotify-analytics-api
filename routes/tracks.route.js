@@ -20,7 +20,7 @@ router.get('/tracks/:year/distribution', asyncHandler(async (req, res, next) => 
     {name: 'energy', range: getRange(0, 1, 0.1), step: 0.1},
     {name: 'instrumentalness', range: getRange(0, 1, 0.1), step: 0.1},
     {name: 'liveness', range: getRange(0, 1, 0.1), step: 0.1},
-    // {name: 'loudness', range: getRange(-28, 2, 4), step: 2},Tra
+    // {name: 'loudness', range: getRange(-28, 4, 2), step: 2},
     // {name: 'popularity', range: getRange(0, 100, 10), step: 10},
     // {name: 'tempo', range: getRange(60, 250, 10), step: 10},
     {name: 'speechiness', range: getRange(0, 1, 0.1), step: 0.1},
@@ -66,7 +66,7 @@ router.get('/tracks/charted', asyncHandler(async (req, res, next) => {
 }));
 
 router.get('/tracks', asyncHandler(async (req, res, next) => {
-  const [count, tracks] = await Promise.all([Track.count(), Track.find({}).limit(1000)]);
+  const [count, tracks] = await Promise.all([Track.estimatedDocumentCount(), Track.find({}).limit(1000)]);
 
   res.send({count, tracks});
 }));

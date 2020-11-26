@@ -32,7 +32,7 @@ mongoose.connect('mongodb://localhost:27017/spotify', {
   .catch(err => console.log("Could not connect to MongoDB"));
 
 
-const port = 8000;
+const port = 8080;
 
 app.use('/api/v1', router);
 
