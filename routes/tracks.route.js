@@ -73,7 +73,6 @@ router.get('/tracks', asyncHandler(async (req, res, next) => {
 
 router.post('/tracks', asyncHandler(async (req, res, next) => {
   const track = new Track(req.body);
-
   await track.save();
   await artists_service.addNewArtists(track.artists);
 
@@ -82,13 +81,14 @@ router.post('/tracks', asyncHandler(async (req, res, next) => {
 
 router.delete('/tracks/:id', asyncHandler(async (req, res, next) => {
   const {id} = req.params;
-  let message = `Track with title ${track.name} does not exist!`;
   let [track] = await Track.find({id: id});
-
+  let message;
   if (track) {
     await Track.remove({id: id});
     await artists_service.deleteEmptyArtists(track.artists);
     message = `Track with title ${track.name} successfully deleted!`;
+  } else {
+    message = `Track with id ${id} does not exist!`;
   }
 
   res.json({message: message});

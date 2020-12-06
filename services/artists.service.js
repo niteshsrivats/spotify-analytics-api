@@ -2,15 +2,10 @@ const Track = require('../models/Track.model');
 const Artist = require('../models/Artist.model');
 
 module.exports = {
-  getArtistNames: () => Artist.aggregate([
-    { $sort: { name: 1 } },
-    { $group: { _id: null, names: { $push: '$name' } } }
-  ]),
+  getArtistNames: () =>
+    Artist.aggregate([{ $sort: { name: 1 } }, { $group: { _id: null, names: { $push: '$name' } } }]),
 
-  getArtist: (name) => Track.aggregate([
-    { $match: { artists: { $in: [name] } } },
-    { $sort: { year: 1 } }
-  ]),
+  getArtist: (name) => Track.aggregate([{ $match: { artists: { $in: [name] } } }, { $sort: { year: 1 } }]),
 
   artistAverageStdDev: (fields) => {
     const stdGroup = { _id: { artist: '$artists' } };
@@ -21,37 +16,37 @@ module.exports = {
       avgGroup[field] = { $avg: '$' + field };
     });
 
-    console.log(JSON.stringify({
-      aggregate: [
-        {
-          $unwind:
-            {
+    console.log(
+      JSON.stringify({
+        aggregate: [
+          {
+            $unwind: {
               path: '$artists',
-              preserveNullAndEmptyArrays: false
-            }
-        },
-        { $group: stdGroup },
-        { $group: avgGroup }
-      ]
-    }));
+              preserveNullAndEmptyArrays: false,
+            },
+          },
+          { $group: stdGroup },
+          { $group: avgGroup },
+        ],
+      })
+    );
 
     return Track.aggregate([
       {
-        $unwind:
-          {
-            path: '$artists',
-            preserveNullAndEmptyArrays: false
-          }
+        $unwind: {
+          path: '$artists',
+          preserveNullAndEmptyArrays: false,
+        },
       },
       { $group: stdGroup },
-      { $group: avgGroup }
+      { $group: avgGroup },
     ]);
   },
 
   addNewArtists: async (artists) => {
-    const names = await Artist.find({ name: { $in: [artists] } });
+    const names = await Artist.find({ name: { $in: artists } }).then((docs) => docs.map((doc) => doc.name));
     for (let i = 0; i < artists.length; i++) {
-      const name = artists[i].name;
+      const name = artists[i];
       if (!names.includes(name)) {
         const artist = new Artist({ name });
         await artist.save();
@@ -67,5 +62,5 @@ module.exports = {
         Artist.remove({ name: artist });
       }
     }
-  }
+  },
 };

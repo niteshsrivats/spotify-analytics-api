@@ -88,7 +88,7 @@ const TrackSchema = new Schema({
   year: {
     type: Number,
     max: new Date().getFullYear(),
-    min: 1930,
+    min: 1900,
     required: true,
     validate: {
       validator: (v) => Number(v) <= new Date().getFullYear(),
