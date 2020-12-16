@@ -15,21 +15,21 @@ module.exports = {
       stdGroup[field] = { $stdDevSamp: '$' + field };
       avgGroup[field] = { $avg: '$' + field };
     });
-
-    console.log(
-      JSON.stringify({
-        aggregate: [
-          {
-            $unwind: {
-              path: '$artists',
-              preserveNullAndEmptyArrays: false,
-            },
-          },
-          { $group: stdGroup },
-          { $group: avgGroup },
-        ],
-      })
-    );
+    //
+    // console.log(
+    //   JSON.stringify({
+    //     aggregate: [
+    //       {
+    //         $unwind: {
+    //           path: '$artists',
+    //           preserveNullAndEmptyArrays: false,
+    //         },
+    //       },
+    //       { $group: stdGroup },
+    //       { $group: avgGroup },
+    //     ],
+    //   })
+    // );
 
     return Track.aggregate([
       {

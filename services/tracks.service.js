@@ -29,6 +29,12 @@ module.exports = {
       ]
     })
 
+    // console.log(JSON.stringify([
+    //   {$match: {year: parseInt(year)}},
+    //   {$project: project},
+    //   {$facet: facets},
+    // ]));
+
     return Track.aggregate([
       {$match: {year: parseInt(year)}},
       {$project: project},
